@@ -2,14 +2,13 @@
 
 Sweeepstakes is a real-time chore coordination app that helps roommates and families manage tasks, track progress, and earn fun badges. It’s designed to make shared living smoother and a little more competitive — in a good way.
 
-## 📑 Index
+## Index
 
 - [Elevator Pitch](#elevator-pitch)
 - [Design](#design)
 - [Key Features](#key-features)
 - [Technologies](#technologies)
-- [Features](#features)
-- [Setup](#setup)
+- [Deployment Instructions](#deployment-instructions)
 
 ## Elevator Pitch
 
@@ -21,27 +20,27 @@ Users can join a household group, assign chores, track completion, and earn badg
 
 ### Login
 
-![Login Page](https://github.com/corbant/sweeepstakes/assets/sample-views/login-page.png)
+![Login Page](assets/sample-views/login-page.png)
 
 ### Dashboard
 
-![Dashboard Page](https://github.com/corbant/sweeepstakes/assets/sample-views/dashboard-page.png)
+![Dashboard Page](assets/sample-views/dashboard-page.png)
 
 ### Chores
 
-![Chores Page](https://github.com/corbant/sweeepstakes/assets/sample-views/chores-page.png)
+![Chores Page](assets/sample-views/chores-page.png)
 
 ### Group
 
-![Group Page](https://github.com/corbant/sweeepstakes/assets/sample-views/group-page.png)
+![Group Page](assets/sample-views/group-page.png)
 
 ### Profile
 
-![Profile Page](https://github.com/corbant/sweeepstakes/assets/sample-views/profile-page.png)
+![Profile Page](assets/sample-views/profile-page.png)
 
 ### Chore Edit Modal
 
-![Group Page](https://github.com/corbant/sweeepstakes/assets/sample-views/chore-modal.png)
+![Chore Modal](assets/sample-views/chore-modal.png)
 
 ## Key Features
 
@@ -67,7 +66,7 @@ Users can join a household group, assign chores, track completion, and earn badg
 - **Database** – Keep track of info for users, groups, chores, leaderboard
 - **WebSocket** – Real-time updates of leaderboard/points
 
-## 🚀 Setup
+## Deployment Instructions
 
 - Clone the repo
 - Install dependencies
