@@ -4,55 +4,68 @@ Sweeepstakes is a real-time chore coordination app that helps roommates and fami
 
 ## 📑 Index
 
-- [Overview](#overview)
-- [Roadmap](#roadmap)
-- [Tech Stack](#tech-stack)
-- [Third-Party API](#third-party-api)
+- [Elevator Pitch](#elevator-pitch)
+- [Design](#design)
+- [Key Features](#key-features)
+- [Technologies](#technologies)
 - [Features](#features)
 - [Setup](#setup)
 
-## 🧭 Overview
+## Elevator Pitch
 
-**Tagline**: _From mess to success._
+Say goodbye to the constant pile of dishes in your sink! Sweeepstakes makes chores fun and more coordinated. Perfect for families or roomates in a shared living space. Do you like a good freindly competition? Now you can see who is the best at getting their chores done. Show off your laundry folding skills with a nice profile badge.
 
 Users can join a household group, assign chores, track completion, and earn badges for their contributions. Real-time updates keep everyone in sync.
 
-## 🛠️ Roadmap
+## Design
 
-1. **Specification** – Define user stories and core features
-2. **AWS Infrastructure** – EC2 for backend, RDS for database
-3. **HTML** – Static layout for login, dashboard, and chore form
-4. **CSS** – Responsive design and chore status styling
-5. **React** – Refactor into components and add routing
-6. **Backend** – Node.js + Express API with JWT auth
-7. **Database** – PostgreSQL schema for users, groups, chores
-8. **WebSocket** – Real-time updates with Socket.IO
+### Login
 
-## 🧰 Tech Stack
+![Login Page](https://github.com/corbant/sweeepstakes/assets/sample-views/login-page.png)
 
-- **Frontend**: HTML, CSS, React
-- **Backend**: Node.js, Express
-- **Database**: PostgreSQL
-- **Hosting**: AWS EC2
-- **Auth**: JWT
-- **WebSocket**: Socket.IO
+### Dashboard
 
-## 🔗 Third-Party API
+![Dashboard Page](https://github.com/corbant/sweeepstakes/assets/sample-views/dashboard-page.png)
 
-**Badge Generator (Shields.io)**  
-Used to create dynamic badges for completed chores and milestones.  
-Example:
+### Chores
 
-```js
-const badgeURL = `https://img.shields.io/badge/Laundry_Legend-blue`;
-```
+![Chores Page](https://github.com/corbant/sweeepstakes/assets/sample-views/chores-page.png)
 
-## ✨ Features
+### Group
+
+![Group Page](https://github.com/corbant/sweeepstakes/assets/sample-views/group-page.png)
+
+### Profile
+
+![Profile Page](https://github.com/corbant/sweeepstakes/assets/sample-views/profile-page.png)
+
+### Chore Edit Modal
+
+![Group Page](https://github.com/corbant/sweeepstakes/assets/sample-views/chore-modal.png)
+
+## Key Features
 
 - Group creation and chore assignment
 - Real-time updates for task completion
 - Badge rewards for milestones
 - Clean, responsive UI
+
+## Technologies
+
+- **HTML** – Static layout for login, dashboard, and chore form
+- **CSS** – Responsive design and chore status styling
+- **React** – Refactor into components and add routing
+- **Service** – Backend endpoints
+  - Login
+  - Get user assigned chores
+  - Edit/Create chore and edit status
+  - Edit group info
+  - User info
+  - Leaderboard info
+  - Third Party Endpoint:
+    - shields.io for badge generation
+- **Database** – Keep track of info for users, groups, chores, leaderboard
+- **WebSocket** – Real-time updates of leaderboard/points
 
 ## 🚀 Setup
 
