@@ -6,30 +6,43 @@
         <title>Chores</title>
     </head>
     <body>
-        <h1>Chores</h1>
-        <div>
-            <h2>TODO</h2>
-            <form>
+        <header>
+            <h1>Chores</h1>
+        </header>
+        <main>
+            <div>
+                <h2>TODO</h2>
+                <form>
+                    <label>
+                        <input type="checkbox" id="choreA" name="choreA">
+                        Chore A
+                    </label>
+                    <label>
+                        <input type="checkbox" id="choreB" name="choreB">
+                        Chore B
+                    </label>
+                </form>
+            </div>
+            <div>
+                <h2>DONE</h2>
                 <label>
-                    <input type="checkbox" id="choreA" name="choreA">
-                    Chore A
+                    <input type="checkbox" id="choreC" name="choreC" checked>
+                    Chore C
                 </label>
                 <label>
-                    <input type="checkbox" id="choreB" name="choreB">
-                    Chore B
+                    <input type="checkbox" id="choreD" name="choreD" checked>
+                    Chore D
                 </label>
-            </form>
-        </div>
-        <div>
-            <h2>DONE</h2>
-            <label>
-                <input type="checkbox" id="choreC" name="choreC" checked>
-                Chore C
-            </label>
-            <label>
-                <input type="checkbox" id="choreD" name="choreD" checked>
-                Chore D
-            </label>
-        </div>
+            </div>
+        </main>
+        <footer>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="chores.html">Chores</a>
+                <a href="group.html">Group</a>
+                <a href="profile.html">Profile</a>
+            </nav>
+        </footer>
     </body>
+    
 </html>
