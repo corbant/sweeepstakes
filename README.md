@@ -9,6 +9,7 @@ Sweeepstakes is a real-time chore coordination app that helps roommates and fami
 - [Key Features](#key-features)
 - [Technologies](#technologies)
 - [Deployment Instructions](#deployment-instructions)
+- [HTML Deliverable](#html-deliverable)
 
 ## Elevator Pitch
 
@@ -72,3 +73,15 @@ Users can join a household group, assign chores, track completion, and earn badg
 - Install dependencies
 - Set environment variables
 - Run the server
+
+## HTML Deliverable
+
+- [x] **HTML pages** - Login page, dashboard, chores page, group settings, and profile settings.
+- [x] **Proper HTML element usage** - head, body, header, main, footer, nav, img, form, button, etc.
+- [x] **Links** - Links for navigation between pages
+- [x] **Text** - Each page has text
+- [x] **3rd party API placeholder** - Has a placeholder for displaying badges
+- [x] **Images** - Image placeholder on the profile page
+- [x] **Login** - Login form placeholder on the login page
+- [x] **DB placeholder** - Various number placeholders for db stored values
+- [x] **WebSocket placeholder** - Real-time chore data update
