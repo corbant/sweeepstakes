@@ -34,6 +34,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 }))
 
 function login(email: string, password: string): User | null {
+  password
   return {
     email,
     firstName: 'Test',

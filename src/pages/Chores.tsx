@@ -5,7 +5,7 @@ function Chores() {
   return (
     <>
       <h1>Chores</h1>
-      <Paper>
+      <Paper sx={{ padding: '12px' }}>
         <div>
           <h2>TODO</h2>
           <Checklist
