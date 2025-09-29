@@ -17,7 +17,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import { useState, type ReactNode } from 'react'
-import { usePageStore, type Page } from '../stores/page'
+import { Pages, usePageStore, type Page } from '../stores/page'
 import logo from '../assets/logo-color.svg'
 
 type Props = {
@@ -49,7 +49,7 @@ function BrandedNavbar(props: Props) {
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          {useMediaQuery(props.theme?.breakpoints.up(props.menuBreakpoint || 'sm') || '') && (
+          {useMediaQuery(props.theme?.breakpoints.up(props.menuBreakpoint || 'sm') || '') && page !== Pages.LOGIN && (
             <>
               <IconButton onClick={() => setMenuOpen(!menuOpen)}>
                 <MenuIcon />
