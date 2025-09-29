@@ -14,6 +14,11 @@ function Profile() {
       <h2>
         {user?.firstName} {user?.lastName}
       </h2>
+      <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
+        {['Laundry Legend', 'Trash Titan', 'Bathroom Boss'].map((badge) => (
+          <img key={badge} src={`https://img.shields.io/badge/${encodeURIComponent(badge)}-blue`} alt={badge} />
+        ))}
+      </div>
       <div>
         <h2>Lifetime Points</h2>
         <Statistic value="450" />
