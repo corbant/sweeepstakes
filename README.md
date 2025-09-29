@@ -10,6 +10,8 @@ Sweeepstakes is a real-time chore coordination app that helps roommates and fami
 - [Technologies](#technologies)
 - [Deployment Instructions](#deployment-instructions)
 - [HTML Deliverable](#html-deliverable)
+- [CSS Deliverable](#css-deliverable)
+- [React Deliverable Phase 1](#react-deliverable-phase-1)
 
 ## Elevator Pitch
 
@@ -85,3 +87,26 @@ Users can join a household group, assign chores, track completion, and earn badg
 - [x] **Login** - Login form placeholder on the login page
 - [x] **DB placeholder** - Various number placeholders for db stored values
 - [x] **WebSocket placeholder** - Real-time chore data update
+
+## CSS Deliverable
+
+- [x] **Header, footer, and main content body**
+- [x] **Navigation elements** - Made navigation elements buttons, and removed underline
+- [x] **Responsive to window resizing** - App looks good at different window sizes and uses a mobile-first design approach
+- [x] **Dark/Light theme** - Made app responsive to user preference of dark and light theme
+- [x] **Application text content** - Using roboto font
+- [x] **Application Images** - Styled avatar image
+
+## React Deliverable Phase 1
+
+- [x] **Bundled using Vite**
+- [x] **Components**
+  - BrandedNavbar - Top navbar with branding logo and menu that appears if the app isn't on mobile
+  - Checklist - Checklist component that manages checked state for chores
+  - GroupChoreList - Table component for adding, editing, and deleting chores from the group
+  - Leaderboard - List of leaderboard results
+  - LoginForm - Redirects to dashboard when login is clicked
+  - Statistic - displays a number in a full width container
+- [x] **Router** - Used ReactRouter for client-side navigation
+- [x] **Bundled and transpiled**
+- [x] **Hooks** - UseState for managing checklist component state
