@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
+import GitHubIcon from '@mui/icons-material/GitHub';
 import { useState, type ReactNode } from 'react'
 import { Pages, usePageStore, type Page } from '../stores/page'
 import logo from '../assets/logo-color.svg'
@@ -44,6 +45,11 @@ function BrandedNavbar(props: Props) {
           </Typography>
         </div>
         <div>
+          <a href="https://github.com/corbant/sweeepstakes" target="_blank" rel="noopener noreferrer">
+            <IconButton>
+              <GitHubIcon />
+            </IconButton>
+          </a>
           <IconButton>
             <Badge variant="dot" color="secondary">
               <NotificationsIcon />

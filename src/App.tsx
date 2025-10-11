@@ -115,8 +115,6 @@ function App() {
         </Router>
       </main>
       <footer>
-        <p>&copy;  {new Date().getFullYear()} Corban Thompson</p> 
-        <a href='https://github.com/corbant/sweeepstakes'>GitHub Repo</a>
         {useMediaQuery(theme.breakpoints.down('sm')) && page !== Pages.LOGIN && (
           <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
             <BottomNavigation
