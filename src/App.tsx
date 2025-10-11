@@ -27,6 +27,9 @@ import '@fontsource/roboto/700.css'
 import ProtectedRoute from './components/ProtectedRoute'
 import RouteUpdater from './components/RouteUpdater'
 import { getPageName, Pages, usePageStore } from './stores/page'
+import { useEffect } from 'react'
+import { useUserStore } from './stores/user'
+import { useGroupStore } from './stores/group'
 
 const theme = createTheme({
   colorSchemes: {
@@ -38,6 +41,15 @@ const theme = createTheme({
 function App() {
   const page = usePageStore((state) => state.page)
   const navigateTo = usePageStore((state) => state.navigateTo)
+  const user = useUserStore((state) => state.user)
+
+  useEffect(() => {
+    if (user) {
+      useGroupStore.getState().getGroupInfo()
+    } else {
+      useGroupStore.getState().clearGroupInfo()
+    }
+  }, [user])
 
   return (
     <ThemeProvider theme={theme}>
@@ -103,6 +115,8 @@ function App() {
         </Router>
       </main>
       <footer>
+        <p>&copy;  {new Date().getFullYear()} Corban Thompson</p> 
+        <a href='https://github.com/corbant/sweeepstakes'>GitHub Repo</a>
         {useMediaQuery(theme.breakpoints.down('sm')) && page !== Pages.LOGIN && (
           <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
             <BottomNavigation

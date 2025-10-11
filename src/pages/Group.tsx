@@ -2,11 +2,15 @@ import { Paper, TableContainer } from '@mui/material'
 import GroupChoreList from '../components/GroupChoreList'
 import Leaderboard from '../components/Leaderboard'
 import Statistic from '../components/Statistic'
+import { useGroupStore } from '../stores/group'
 
 function Group() {
+  const groupName = useGroupStore((state) => state.name)
+  const chores = useGroupStore((state) => state.chores)
+
   return (
     <>
-      <h1>Group Name</h1>
+      <h1>{groupName}</h1>
       <div>
         <h2>Weekly Leaderboard</h2>
         <Paper>
@@ -27,29 +31,7 @@ function Group() {
         <h2>All Chores</h2>
         <TableContainer component={Paper}>
           <GroupChoreList
-            chores={[
-              {
-                name: 'Take out trash',
-                avatars: [
-                  { initials: 'AB', color: 'red' },
-                  { initials: 'CD', color: 'blue' }
-                ],
-                dueDate: '12/7'
-              },
-              {
-                name: 'Wash dishes',
-                avatars: [{ initials: 'EF', color: 'green' }],
-                dueDate: '12/11'
-              },
-              {
-                name: 'Mow lawn',
-                avatars: [
-                  { initials: 'GH', color: 'purple' },
-                  { initials: 'IJ', color: 'orange' }
-                ],
-                dueDate: '12/4'
-              }
-            ]}
+            chores={chores}
           />
         </TableContainer>
       </div>

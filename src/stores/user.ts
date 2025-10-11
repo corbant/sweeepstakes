@@ -1,16 +1,5 @@
 import { create } from 'zustand'
-
-type User = {
-  email: string
-  firstName: string
-  lastName: string
-  avatar: {
-    url?: string
-    initials: string
-    color: string
-  }
-  // other field
-}
+import type { User } from '../types'
 
 interface UserState {
   isLoggedIn: () => boolean
@@ -24,6 +13,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   user: null,
   login: (email: string, password: string) =>
     set(() => {
+      // TODO: call backend api
       const user = login(email, password)
       if (user) {
         return { user: user }

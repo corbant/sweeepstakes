@@ -10,9 +10,10 @@ import {
 } from '@mui/material'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import AddIcon from '@mui/icons-material/Add'
+import type { Chore } from '../types'
 
 type Props = {
-  chores: { name: string; avatars: { initials: string; color: string }[]; dueDate: string }[]
+  chores: Chore[]
 }
 
 function GroupChoreList(props: Props) {
@@ -33,17 +34,17 @@ function GroupChoreList(props: Props) {
       <TableBody>
         {props.chores.map((chore, index) => (
           <TableRow key={index}>
-            <TableCell>{chore.name}</TableCell>
+            <TableCell>{chore.title}</TableCell>
             <TableCell align="center">
               <AvatarGroup spacing={48} sx={{ justifyContent: 'center' }} max={4}>
-                {chore.avatars.map((avatar) => (
-                  <Avatar sx={{ bgcolor: avatar.color, width: 30, height: 30 }}>
-                    {avatar.initials}
+                {chore.assignedTo?.map((user) => (
+                  <Avatar sx={{ bgcolor: user.avatar.color, width: 30, height: 30 }}>
+                    {user.avatar.initials}
                   </Avatar>
                 ))}
               </AvatarGroup>
             </TableCell>
-            <TableCell align="center">{chore.dueDate}</TableCell>
+            <TableCell align="center">{chore.dueDate.toDateString()}</TableCell>
             <TableCell align="right">
               <IconButton>
                 <MoreVertIcon />
