@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material'
+import { Avatar, Button } from '@mui/material'
 import { useUserStore } from '../stores/user'
 import Statistic from '../components/Statistic'
 
@@ -30,6 +30,11 @@ function Profile() {
       <div>
         <h2>Week Streak</h2>
         <Statistic value="5" />
+      </div>
+      <div>
+        <Button sx={{ mt: '12px'}} variant="text" color="error" onClick={() => useUserStore.getState().logout()}>
+          Logout
+        </Button>
       </div>
     </>
   )
