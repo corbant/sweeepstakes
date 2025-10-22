@@ -10,17 +10,21 @@ interface UserState {
 
 export const useUserStore = create<UserState>((set, get) => ({
   isLoggedIn: () => !!get().user,
-  user: null,
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
   login: (email: string, password: string) =>
     set(() => {
       // TODO: call backend api
       const user = login(email, password)
       if (user) {
+        localStorage.setItem('user', JSON.stringify(user))
         return { user: user }
       }
       return { user: null }
     }),
-  logout: () => set(() => ({ user: null }))
+  logout: () => {
+    localStorage.removeItem('user')
+    set(() => ({ user: null }))
+  }
 }))
 
 function login(email: string, password: string): User | null {
