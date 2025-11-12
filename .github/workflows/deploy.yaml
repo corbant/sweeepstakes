@@ -21,7 +21,7 @@ jobs:
           version: 10
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile && cd ./service && pnpm install --frozen-lockfile && cd ..
 
       - name: Build react app
         run: pnpm run build
