@@ -12,6 +12,7 @@ Sweeepstakes is a real-time chore coordination app that helps roommates and fami
 - [HTML Deliverable](#html-deliverable)
 - [CSS Deliverable](#css-deliverable)
 - [React Deliverable Phase 1](#react-deliverable-phase-1)
+- [React Deliverable Phase 2](#react-deliverable-phase-2)
 
 ## Elevator Pitch
 
@@ -110,3 +111,32 @@ Users can join a household group, assign chores, track completion, and earn badg
 - [x] **Router** - Used ReactRouter for client-side navigation
 - [x] **Bundled and transpiled**
 - [x] **Hooks** - UseState for managing checklist component state
+
+## React Deliverable Phase 2
+
+- [x]
+
+## Service Deliverable
+
+**Endpoints:**
+
+- Authentication
+  - POST /login - User login
+  - POST /register - User registration
+- User
+  - GET /user - Get user info
+  - PUT /user - Update user info
+  - GET /user/group - Get user's group info
+  - GET /user/chores - Get chores assigned to the user
+  - GET /user/badges - Get user's badges
+- Group
+  - GET /group - Get group info for current user
+  - POST /group - Create new group
+  - PUT /group - Update group info
+  - GET /group/members - Get all group members
+  - GET /group/members/:userId - Get member info
+  - GET /group/chores - Get all group chores
+  - POST /group/chores - Create new chore
+  - PUT /group/chores/:choreId - Update chore
+  - DELETE /group/chores/:choreId - Delete chore
+  - GET /group/leaderboard - Get group leaderboard

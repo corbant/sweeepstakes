@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import GitHubIcon from '@mui/icons-material/GitHub';
+import GitHubIcon from '@mui/icons-material/GitHub'
 import { useState, type ReactNode } from 'react'
 import { Pages, usePageStore, type Page } from '../stores/page'
 import logo from '../assets/logo-color.svg'
@@ -45,7 +45,11 @@ function BrandedNavbar(props: Props) {
           </Typography>
         </div>
         <div>
-          <a href="https://github.com/corbant/sweeepstakes" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://github.com/corbant/sweeepstakes"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <IconButton>
               <GitHubIcon />
             </IconButton>
@@ -55,36 +59,37 @@ function BrandedNavbar(props: Props) {
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          {useMediaQuery(props.theme?.breakpoints.up(props.menuBreakpoint || 'sm') || '') && page !== Pages.LOGIN && (
-            <>
-              <IconButton onClick={() => setMenuOpen(!menuOpen)}>
-                <MenuIcon />
-              </IconButton>
-              <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)}>
-                <div style={{ width: 250, padding: '20px' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Menu
-                  </Typography>
-                </div>
-                <List>
-                  {props.navItems?.map((item) => (
-                    <ListItem disablePadding key={item.label}>
-                      <ListItemButton
-                        selected={page === item.page}
-                        onClick={() => {
-                          navigateTo(item.page)
-                          setMenuOpen(false)
-                        }}
-                      >
-                        <ListItemIcon>{item.icon}</ListItemIcon>
-                        <ListItemText primary={item.label} />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Drawer>
-            </>
-          )}
+          {useMediaQuery(props.theme?.breakpoints.up(props.menuBreakpoint || 'sm') || '') &&
+            page !== Pages.LOGIN && (
+              <>
+                <IconButton onClick={() => setMenuOpen(!menuOpen)}>
+                  <MenuIcon />
+                </IconButton>
+                <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)}>
+                  <div style={{ width: 250, padding: '20px' }}>
+                    <Typography variant="h6" gutterBottom>
+                      Menu
+                    </Typography>
+                  </div>
+                  <List>
+                    {props.navItems?.map((item) => (
+                      <ListItem disablePadding key={item.label}>
+                        <ListItemButton
+                          selected={page === item.page}
+                          onClick={() => {
+                            navigateTo(item.page)
+                            setMenuOpen(false)
+                          }}
+                        >
+                          <ListItemIcon>{item.icon}</ListItemIcon>
+                          <ListItemText primary={item.label} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Drawer>
+              </>
+            )}
         </div>
       </Toolbar>
     </AppBar>

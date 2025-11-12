@@ -23,16 +23,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project
+      - name: Build react app
         run: pnpm run build
+
+      - name: Build service
+        run: pnpm --filter ./service run build
+
+      - name: Create structure for deployment
+        run: mv ./dist ./build/public
 
       - name: Deploy to server
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: '-vzr --delete'
-          SOURCE: 'dist/'
+          SOURCE: 'build'
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
-          EXCLUDE: '/dist/, /node_modules/'
+          EXCLUDE: '/dist'
+          SCRIPT_AFTER: 'pm2 restart sweeepstakes'

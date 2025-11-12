@@ -11,28 +11,33 @@ interface UserState {
 export const useUserStore = create<UserState>((set, get) => ({
   isLoggedIn: () => !!get().user,
   user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
-  login: (email: string, password: string) =>
-    set(() => {
-      // TODO: call backend api
-      const user = login(email, password)
+  login: async (email: string, password: string) => {
+    try {
+      const user = await login(email, password)
       if (user) {
         localStorage.setItem('user', JSON.stringify(user))
-        return { user: user }
+        set(() => ({ user: user }))
       }
-      return { user: null }
-    }),
+    } catch (error) {
+      throw error
+    }
+  },
   logout: () => {
     localStorage.removeItem('user')
     set(() => ({ user: null }))
   }
 }))
 
-function login(email: string, password: string): User | null {
-  password
-  return {
-    email,
-    firstName: 'Test',
-    lastName: 'User',
-    avatar: { initials: 'TU', color: '#644fffff' }
+const login = async (email: string, password: string): Promise<User | null> => {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to login')
   }
+  const user = data.user as User
+  return user
 }

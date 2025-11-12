@@ -16,7 +16,11 @@ function Profile() {
       </h2>
       <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
         {['Laundry Legend', 'Trash Titan', 'Bathroom Boss'].map((badge) => (
-          <img key={badge} src={`https://img.shields.io/badge/${encodeURIComponent(badge)}-blue`} alt={badge} />
+          <img
+            key={badge}
+            src={`https://img.shields.io/badge/${encodeURIComponent(badge)}-blue`}
+            alt={badge}
+          />
         ))}
       </div>
       <div>
@@ -32,7 +36,12 @@ function Profile() {
         <Statistic value="5" />
       </div>
       <div>
-        <Button sx={{ mt: '12px'}} variant="text" color="error" onClick={() => useUserStore.getState().logout()}>
+        <Button
+          sx={{ mt: '12px' }}
+          variant="text"
+          color="error"
+          onClick={() => useUserStore.getState().logout()}
+        >
           Logout
         </Button>
       </div>
