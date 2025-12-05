@@ -1,11 +1,8 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import bcrypt from 'bcryptjs'
-import authRouter from './routes/auth.route'
 import 'dotenv/config'
-import groupRouter from './routes/group.route'
-import userRouter from './routes/user.route'
-import checkAuthentication from './middleware/checkAuthentication'
+import apiRouter from './routes'
 
 const app = express()
 
@@ -21,16 +18,9 @@ app.use(cookieParser())
 app.use(express.static('public'))
 
 // Router for service endpoints
+app.use('/api', apiRouter)
 
-app.get('/status', (req, res) => {
-  res.status(200).json({ status: 'OK' })
-})
-
-app.use('/api/auth', authRouter)
-// Protected routes
-app.use('/api/group', checkAuthentication, groupRouter)
-app.use('/api/user', checkAuthentication, userRouter)
-
+// Start the server
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
