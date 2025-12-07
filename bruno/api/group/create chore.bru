@@ -1,0 +1,25 @@
+meta {
+  name: create chore
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{group_url}}/chores
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Clean Shower",
+    "description": "Remove everything, scrub floor, sanitize, rinse",
+    "assignedTo": ["6934c20310dc94949e26469a", "6934c22210dc94949e26469e"],
+    "dueDate": "2025-12-20"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

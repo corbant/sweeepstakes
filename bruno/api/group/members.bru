@@ -1,0 +1,16 @@
+meta {
+  name: members
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{group_url}}/members
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

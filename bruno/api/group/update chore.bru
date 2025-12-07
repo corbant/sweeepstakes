@@ -1,0 +1,27 @@
+meta {
+  name: update chore
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{group_url}}/chore/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 6934c7ace51da96540f617ba
+}
+
+body:json {
+  {
+    "title": "Clean Shower",
+    "description": "Remove everything, scrub floor, sanitize, rinse"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

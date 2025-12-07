@@ -1,0 +1,22 @@
+meta {
+  name: update group
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{group_url}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Corban's Group"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

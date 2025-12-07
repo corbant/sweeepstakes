@@ -1,0 +1,15 @@
+meta {
+  name: chores
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{user_url}}/chores
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

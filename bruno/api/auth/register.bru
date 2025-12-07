@@ -1,0 +1,26 @@
+meta {
+  name: register
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{auth_url}}/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "testuser",
+    "password": "password",
+    "firstName": "Test",
+    "lastName": "User",
+    "groupId": "6934c20210dc94949e264698"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
