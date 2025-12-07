@@ -3,10 +3,24 @@ import GroupChoreList from '../components/GroupChoreList'
 import Leaderboard from '../components/Leaderboard'
 import Statistic from '../components/Statistic'
 import { useGroupStore } from '../stores/group'
+import { useEffect, useState } from 'react'
+import type { LeaderboardEntry } from '../types'
 
 function Group() {
   const groupName = useGroupStore((state) => state.name)
   const chores = useGroupStore((state) => state.chores)
+
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([])
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const res = await fetch('/api/group/leaderboard')
+      const data = await res.json()
+      setLeaderboardEntries(data)
+    }
+
+    fetchLeaderboard()
+  })
 
   return (
     <>
@@ -14,13 +28,7 @@ function Group() {
       <div>
         <h2>Weekly Leaderboard</h2>
         <Paper>
-          <Leaderboard
-            entries={[
-              { name: 'Alice', score: 150 },
-              { name: 'Bob', score: 120 },
-              { name: 'Charlie', score: 100 }
-            ]}
-          />
+          <Leaderboard entries={leaderboardEntries} />
         </Paper>
       </div>
       <div>
@@ -30,9 +38,7 @@ function Group() {
       <div>
         <h2>All Chores</h2>
         <TableContainer component={Paper}>
-          <GroupChoreList
-            chores={chores}
-          />
+          <GroupChoreList chores={chores} />
         </TableContainer>
       </div>
     </>

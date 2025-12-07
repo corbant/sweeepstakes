@@ -12,6 +12,7 @@ export interface User {
     color: string
   }
   points: number
+  totalChoresCompleted: number
 }
 
 const userSchema = new mongoose.Schema({
@@ -28,7 +29,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     _id: false
   },
-  points: { type: Number, default: 0 }
+  points: { type: Number, default: 0 },
+  totalChoresCompleted: { type: Number, default: 0 }
 })
 
 const UserModel = mongoose.model('User', userSchema)

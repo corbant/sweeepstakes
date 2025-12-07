@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { User } from '../types'
+import { persist } from 'zustand/middleware'
+import type { Group, User } from '../types'
 import type { Chore } from '../types'
 
 interface GroupState {
@@ -9,20 +10,31 @@ interface GroupState {
   chores: Chore[]
   getGroupInfo: () => void
   clearGroupInfo: () => void
-  users: User[]
+  members: User[]
 }
 
-export const useGroupStore = create<GroupState>((set) => ({
-  id: '',
-  name: '',
-  setName: (name: string) => {
-    set({ name })
-  },
-  chores: [],
-  getGroupInfo: () => {
-    // TODO: fetch group info from api
-    set({ id: '1', name: 'Test Group', chores: [], users: [] })
-  },
-  clearGroupInfo: () => set({ id: '', name: '', chores: [], users: [] }),
-  users: []
-}))
+export const useGroupStore = create<GroupState>()(
+  persist(
+    (set) => ({
+      id: '',
+      name: '',
+      setName: (name: string) => {
+        set({ name })
+      },
+      chores: [],
+      getGroupInfo: async () => {
+        const group = await fetchGroupInfo()
+        set({ id: group.id, name: group.name, chores: group.chores, members: group.members })
+      },
+      clearGroupInfo: () => set({ id: '', name: '', chores: [], members: [] }),
+      members: []
+    }),
+    { name: 'group-storage' }
+  )
+)
+
+const fetchGroupInfo = async (): Promise<Group> => {
+  const res = await fetch('/api/group')
+  const data = await res.json()
+  return data
+}

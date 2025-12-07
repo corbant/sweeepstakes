@@ -2,16 +2,31 @@ import type { Request, Response } from 'express'
 import UserModel, { type User } from '../models/user.model'
 import GroupModel from '../models/group.model'
 import ChoreModel, { type Chore } from '../models/chore.model'
+import { POINTS_PER_CHORE } from '../constants'
 
 export const getGroupInfoController = async (req: Request, res: Response) => {
   const groupId = await getGroupId(req)
-  const group = await GroupModel.findById(groupId)
+  const group = await GroupModel.findById(groupId).populate<{ chores: Chore[]; members: User[] }>(
+    'chores members'
+  )
   const groupObj = group!.toObject()
   const rawBody = {
     id: groupObj._id,
     name: groupObj.name,
-    members: groupObj.members,
-    chores: groupObj.chores
+    members: groupObj.members.map((member) => ({
+      id: member._id,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      avatar: member.avatar
+    })),
+    chores: groupObj.chores.map((chore) => ({
+      id: chore._id,
+      title: chore.title,
+      description: chore.description,
+      assignedTo: chore.assignedTo,
+      dueDate: chore.dueDate,
+      completed: chore.completed
+    }))
   }
   res.status(200).json(rawBody)
 }
@@ -22,7 +37,7 @@ export const updateGroupInfoController = async (req: Request, res: Response) => 
   const updatedGroup = await GroupModel.findByIdAndUpdate(groupId, updatedData, {
     new: true,
     runValidators: true
-  })
+  }).populate<{ chores: Chore[]; members: User[] }>('chores members')
   const updatedGroupObj = updatedGroup!.toObject()
   const rawBody = {
     id: updatedGroupObj._id,
@@ -147,10 +162,40 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
   if (!group!.chores.find((id) => id.toString() === choreId)) {
     return res.status(404).json({ message: 'Chore not found in group' })
   }
+
+  // Get the current chore state before updating
+  const currentChore = await ChoreModel.findById(choreId)
+
   const updatedChore = await ChoreModel.findByIdAndUpdate(choreId, updatedData, {
     new: true,
     runValidators: true
   })
+
+  // Check if chore was just marked as completed
+  if (!currentChore!.completed && updatedChore!.completed) {
+    // Award points to all assigned users
+    await UserModel.updateMany(
+      { _id: { $in: updatedChore!.assignedTo } },
+      {
+        $inc: {
+          points: POINTS_PER_CHORE,
+          totalChoresCompleted: 1
+        }
+      }
+    )
+  } else if (currentChore!.completed && !updatedChore!.completed) {
+    // If chore was unmarked as completed, deduct points
+    await UserModel.updateMany(
+      { _id: { $in: updatedChore!.assignedTo } },
+      {
+        $inc: {
+          points: -POINTS_PER_CHORE,
+          totalChoresCompleted: -1
+        }
+      }
+    )
+  }
+
   const updatedChoreObj = updatedChore!.toObject()
   const rawBody = {
     id: updatedChoreObj._id,

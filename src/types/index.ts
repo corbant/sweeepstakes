@@ -1,5 +1,5 @@
 export interface User {
-  email: string
+  id: string
   firstName: string
   lastName: string
   avatar: {
@@ -12,7 +12,7 @@ export interface Chore {
   id: string
   title: string
   description: string
-  assignedTo: User[] | null
+  assignedTo: string[]
   dueDate: Date
   completed: boolean
 }
@@ -22,4 +22,14 @@ export interface Group {
   name: string
   members: User[]
   chores: Chore[]
+}
+
+export interface Badge {
+  name: string
+  url: string
+}
+
+export interface LeaderboardEntry {
+  user: string
+  points: number
 }

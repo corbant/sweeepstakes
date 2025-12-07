@@ -21,6 +21,11 @@ app.use(express.static('public'))
 // Router for service endpoints
 app.use('/api', apiRouter)
 
+//fallback to react router for 404 page
+app.use((_req, res) => {
+  res.sendFile('index.html', { root: 'public' })
+})
+
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweeepstakes'
 mongoose

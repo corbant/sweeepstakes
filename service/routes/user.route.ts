@@ -4,7 +4,8 @@ import {
   getUserChoresController,
   getUserInfoController,
   updateUserInfoController,
-  getUserPointsController
+  getUserPointsController,
+  getUserTotalCompletedChoresController
 } from '../controllers/user.controller'
 
 const userRouter = express.Router()
@@ -13,6 +14,7 @@ const userRouter = express.Router()
 userRouter.route('/').get(getUserInfoController).put(updateUserInfoController)
 
 userRouter.route('/chores').get(getUserChoresController)
+userRouter.route('/chores/completed').get(getUserTotalCompletedChoresController)
 userRouter.route('/badges').get(getUserBadgesController)
 userRouter.route('/points').get(getUserPointsController)
 

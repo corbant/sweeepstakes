@@ -1,20 +1,25 @@
 import { Button, TextField } from '@mui/material'
-import { useUserStore } from '../stores/user'
-import { usePageStore, Pages } from '../stores/page'
 
-function LoginForm() {
-  const userStore = useUserStore()
-  const navigateTo = usePageStore((state) => state.navigateTo)
+type Props = {
+  onLogin: (username: string, password: string) => void
+}
 
-  function login() {
-    userStore.login('test@example.com', 'password')
-    navigateTo(Pages.DASHBOARD)
-  }
-
+function LoginForm(props: Props) {
   return (
-    <form action={login}>
-      <TextField label="Email" variant="outlined" fullWidth margin="normal" />
-      <TextField label="Password" type="password" variant="outlined" fullWidth margin="normal" />
+    <form
+      action={(formData) =>
+        props.onLogin(formData.get('username') as string, formData.get('password') as string)
+      }
+    >
+      <TextField name="username" label="Username" variant="outlined" fullWidth margin="normal" />
+      <TextField
+        name="password"
+        label="Password"
+        type="password"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+      />
       <Button type="submit" variant="contained" color="primary" fullWidth>
         Login
       </Button>

@@ -1,9 +1,33 @@
 import { Avatar, Button } from '@mui/material'
 import { useUserStore } from '../stores/user'
 import Statistic from '../components/Statistic'
+import { useEffect, useState } from 'react'
+import { type Badge } from '../types'
 
 function Profile() {
   const user = useUserStore((state) => state.user)
+
+  const [badges, setBadges] = useState<Badge[]>([])
+  const [points, setPoints] = useState<number>(0)
+  const [choresCompleted, setChoresCompleted] = useState<number>(0)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      let res = await fetch('/api/user/badges')
+      const userBadges = await res.json()
+      setBadges(userBadges)
+
+      res = await fetch('/api/user/points')
+      const userPoints = await res.json()
+      setPoints(userPoints.totalPoints)
+
+      res = await fetch('/api/user/chores/completed')
+      const userChores = await res.json()
+      setChoresCompleted(userChores.totalCompleted)
+    }
+
+    fetchStats()
+  }, [])
 
   return (
     <>
@@ -15,25 +39,17 @@ function Profile() {
         {user?.firstName} {user?.lastName}
       </h2>
       <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
-        {['Laundry Legend', 'Trash Titan', 'Bathroom Boss'].map((badge) => (
-          <img
-            key={badge}
-            src={`https://img.shields.io/badge/${encodeURIComponent(badge)}-blue`}
-            alt={badge}
-          />
+        {badges.map((badge) => (
+          <img src={badge.url} alt={badge.name} />
         ))}
       </div>
       <div>
         <h2>Lifetime Points</h2>
-        <Statistic value="450" />
+        <Statistic value={points.toString()} />
       </div>
       <div>
         <h2>Lifetime Completed Chores</h2>
-        <Statistic value="32" />
-      </div>
-      <div>
-        <h2>Week Streak</h2>
-        <Statistic value="5" />
+        <Statistic value={choresCompleted.toString()} />
       </div>
       <div>
         <Button

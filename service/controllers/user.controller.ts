@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import UserModel from '../models/user.model'
 import GroupModel from '../models/group.model'
 import { type Chore } from '../models/chore.model'
+import { BADGES } from '../constants'
 
 export const getUserInfoController = async (req: Request, res: Response) => {
   const userId = getUserId(req)
@@ -13,7 +14,9 @@ export const getUserInfoController = async (req: Request, res: Response) => {
     firstName: userObj.firstName,
     lastName: userObj.lastName,
     avatar: userObj.avatar,
-    group: userObj.group.toString()
+    group: userObj.group.toString(),
+    points: userObj.points,
+    totalChoresCompleted: userObj.totalChoresCompleted
   }
   res.status(200).json(rawBody)
 }
@@ -71,20 +74,40 @@ export const getUserChoresController = async (req: Request, res: Response) => {
   res.status(200).json(rawBody)
 }
 
-export const getUserBadgesController = (req: Request, res: Response) => {
-  // Implementation here
-  res.status(200).json({
-    badges: [
-      //implementation
-    ]
-  })
+export const getUserBadgesController = async (req: Request, res: Response) => {
+  const userId = getUserId(req)
+  const user = await UserModel.findById(userId).select('points totalChoresCompleted')
+  const earnedBadges = Object.entries(BADGES)
+    .filter(([_key, badge]) => {
+      return badge.condition(user!)
+    })
+    .map(([_key, badge]) => ({
+      name: badge.name,
+      color: badge.color
+    }))
+
+  const rawBody = earnedBadges.map((badge) => ({
+    name: badge.name,
+    url: `https://img.shields.io/badge/${encodeURIComponent(badge.name)}-${encodeURIComponent(
+      badge.color.replace('#', '')
+    )}?style=flat`
+  }))
+
+  res.status(200).json(rawBody)
 }
 
 export const getUserPointsController = async (req: Request, res: Response) => {
   const userId = getUserId(req)
-  const user = await UserModel.findById(userId)
+  const user = await UserModel.findById(userId).select('points')
   const points = user!.points
   res.status(200).json({ points })
+}
+
+export const getUserTotalCompletedChoresController = async (req: Request, res: Response) => {
+  const userId = getUserId(req)
+  const user = await UserModel.findById(userId).select('totalChoresCompleted')
+  const totalChoresCompleted = user!.totalChoresCompleted
+  res.status(200).json({ totalChoresCompleted })
 }
 
 // utils
