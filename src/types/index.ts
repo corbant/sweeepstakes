@@ -1,23 +1,25 @@
-
-
 export interface User {
   email: string
   firstName: string
   lastName: string
   avatar: {
-    url?: string
     initials: string
     color: string
   }
-  // other field
 }
 
 export interface Chore {
-    id: string;
-    title: string;
-    description: string;
-    assignedTo: User[] | null;
-    dueDate: Date;
-    completed: boolean;
+  id: string
+  title: string
+  description: string
+  assignedTo: User[] | null
+  dueDate: Date
+  completed: boolean
 }
 
+export interface Group {
+  id: string
+  name: string
+  members: User[]
+  chores: Chore[]
+}

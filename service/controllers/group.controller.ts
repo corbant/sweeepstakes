@@ -1,111 +1,206 @@
 import type { Request, Response } from 'express'
+import UserModel, { type User } from '../models/user.model'
+import GroupModel from '../models/group.model'
+import ChoreModel, { type Chore } from '../models/chore.model'
 
-export const getGroupInfoController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
-  // Fetch group info using groupId
-  res.status(200).json({
-    group: {
-      /* group data */
-    }
-  })
+export const getGroupInfoController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId)
+  const groupObj = group!.toObject()
+  const rawBody = {
+    id: groupObj._id,
+    name: groupObj.name,
+    members: groupObj.members,
+    chores: groupObj.chores
+  }
+  res.status(200).json(rawBody)
 }
 
-export const updateGroupInfoController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
+export const updateGroupInfoController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
   const updatedData = req.body
-  // Update group info using groupId and updatedData
-  res.status(200).json({
-    group: {
-      /* updated group data */
-    }
+  const updatedGroup = await GroupModel.findByIdAndUpdate(groupId, updatedData, {
+    new: true,
+    runValidators: true
   })
+  const updatedGroupObj = updatedGroup!.toObject()
+  const rawBody = {
+    id: updatedGroupObj._id,
+    name: updatedGroupObj.name,
+    members: updatedGroupObj.members,
+    chores: updatedGroupObj.chores
+  }
+  res.status(200).json(rawBody)
 }
 
-export const getGroupMembersController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
+export const getGroupMembersController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId)
+  if (!group) {
+    return res.status(404).json({ message: 'Group not found' })
+  }
+  const members = await UserModel.find(
+    { _id: { $in: group.members } },
+    'firstName lastName avatar _id'
+  )
+  const rawBody = members.map((member) => ({
+    id: member._id,
+    firstName: member.firstName,
+    lastName: member.lastName,
+    avatar: member.avatar
+  }))
   // Fetch group members using groupId
-  res.status(200).json({
-    members: [
-      /* member data */
-    ]
-  })
+  res.status(200).json(rawBody)
 }
 
-export const getGroupMemberController = (req: Request, res: Response) => {
-  const { userId } = req.params
-  const groupId = getGroupId(req)
-  // Fetch member info using groupId and userId
-  res.status(200).json({
-    member: {
-      /* member data */
-    }
-  })
+export const getGroupMemberController = async (req: Request, res: Response) => {
+  const { id: userId } = req.params
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId)
+  if (!group!.members.find((memberId) => memberId.toString() === userId)) {
+    return res.status(404).json({ message: 'Member not found in group' })
+  }
+  const member = await UserModel.findById(userId, 'firstName lastName avatar _id')
+
+  const memberObj = member!.toObject()
+  const rawBody = {
+    id: memberObj._id,
+    firstName: memberObj.firstName,
+    lastName: memberObj.lastName,
+    avatar: memberObj.avatar
+  }
+  res.status(200).json(rawBody)
 }
 
-export const getGroupChoresController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
+export const getGroupChoresController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId).populate<{ chores: Chore[] }>('chores')
+  const chores = group!.chores
+  const rawBody = chores.map((chore) => ({
+    id: chore._id,
+    title: chore.title,
+    description: chore.description,
+    assignedTo: chore.assignedTo,
+    dueDate: chore.dueDate,
+    completed: chore.completed
+  }))
   // Fetch group chores using groupId
-  res.status(200).json({
-    chores: [
-      /* chore data */
-    ]
-  })
+  res.status(200).json(rawBody)
 }
 
-export const addGroupChoreController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
+export const addGroupChoreController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
   const choreData = req.body
-  // Add new chore to group using groupId and choreData
-  res.status(201).json({
-    chore: {
-      /* new chore data */
-    }
-  })
+  let newChore
+  try {
+    newChore = await ChoreModel.create({
+      title: choreData.title,
+      description: choreData.description,
+      assignedTo: choreData.assignedTo,
+      dueDate: choreData.dueDate,
+      completed: false
+    })
+  } catch (e) {
+    return res.status(400).json({ message: 'Invalid chore data' })
+  }
+
+  await GroupModel.findByIdAndUpdate(groupId, { $push: { chores: newChore._id } })
+
+  const newChoreObj = newChore.toObject()
+  const rawBody = {
+    id: newChoreObj._id,
+    title: newChoreObj.title,
+    description: newChoreObj.description,
+    assignedTo: newChoreObj.assignedTo,
+    dueDate: newChoreObj.dueDate,
+    completed: newChoreObj.completed
+  }
+  res.status(201).json(rawBody)
 }
 
-export const getGroupChoreController = (req: Request, res: Response) => {
-  const { choreId } = req.params
-  const groupId = getGroupId(req)
-  // Fetch chore info using groupId and choreId
-  res.status(200).json({
-    chore: {
-      /* chore data */
-    }
-  })
+export const getGroupChoreController = async (req: Request, res: Response) => {
+  const { id: choreId } = req.params
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId)
+  if (!group!.chores.find((id) => id.toString() === choreId)) {
+    return res.status(404).json({ message: 'Chore not found in group' })
+  }
+  const chore = await ChoreModel.findById(choreId)
+  const choreObj = chore!.toObject()
+  const rawBody = {
+    id: choreObj._id,
+    title: choreObj.title,
+    description: choreObj.description,
+    assignedTo: choreObj.assignedTo,
+    dueDate: choreObj.dueDate,
+    completed: choreObj.completed
+  }
+  res.status(200).json(rawBody)
 }
 
-export const updateGroupChoreController = (req: Request, res: Response) => {
-  const { choreId } = req.params
-  const groupId = getGroupId(req)
+export const updateGroupChoreController = async (req: Request, res: Response) => {
+  const { id: choreId } = req.params
+  const groupId = await getGroupId(req)
   const updatedData = req.body
-  // Update chore info using groupId, choreId, and updatedData
-  res.status(200).json({
-    chore: {
-      /* updated chore data */
-    }
+
+  const group = await GroupModel.findById(groupId)
+  if (!group!.chores.find((id) => id.toString() === choreId)) {
+    return res.status(404).json({ message: 'Chore not found in group' })
+  }
+  const updatedChore = await ChoreModel.findByIdAndUpdate(choreId, updatedData, {
+    new: true,
+    runValidators: true
   })
+  const updatedChoreObj = updatedChore!.toObject()
+  const rawBody = {
+    id: updatedChoreObj._id,
+    title: updatedChoreObj.title,
+    description: updatedChoreObj.description,
+    assignedTo: updatedChoreObj.assignedTo,
+    dueDate: updatedChoreObj.dueDate,
+    completed: updatedChoreObj.completed
+  }
+  res.status(200).json(rawBody)
 }
 
-export const deleteGroupChoreController = (req: Request, res: Response) => {
-  const { choreId } = req.params
-  const groupId = getGroupId(req)
-  // Delete chore using groupId and choreId
+export const deleteGroupChoreController = async (req: Request, res: Response) => {
+  const { id: choreId } = req.params
+  const groupId = await getGroupId(req)
+  const group = await GroupModel.findById(groupId)
+  if (!group!.chores.find((id) => id.toString() === choreId)) {
+    return res.status(404).json({ message: 'Chore not found in group' })
+  }
+  try {
+    await ChoreModel.findByIdAndDelete(choreId)
+    await GroupModel.findByIdAndUpdate(groupId, { $pull: { chores: choreId } })
+  } catch (e) {
+    return res.status(500).json({ message: 'Error deleting chore' })
+  }
+
   res.status(204).send()
 }
 
-export const getGroupLeaderboardController = (req: Request, res: Response) => {
-  const groupId = getGroupId(req)
-  // Fetch leaderboard data using groupId
-  res.status(200).json({
-    leaderboard: [
-      /* leaderboard data */
-    ]
-  })
+export const getGroupLeaderboardController = async (req: Request, res: Response) => {
+  const groupId = await getGroupId(req)
+
+  const group = await GroupModel.findById(groupId).populate<{ members: User[] }>('members')
+  const members = group!.members
+
+  const leaderboard = members.map((member) => ({
+    id: member._id,
+    points: member.points
+  }))
+
+  leaderboard.sort((a, b) => b.points - a.points)
+  res.status(200).json(leaderboard)
 }
 
 // utils
-const getGroupId = (req: Request): string => {
+const getGroupId = async (req: Request): Promise<string> => {
   // Placeholder implementation
   const userId = req.cookies[process.env.AUTH_COOKIE_NAME || 'token']
-  return 'groupId-placeholder'
+
+  const user = await UserModel.findById(userId)
+
+  return user!.group.toString()
 }

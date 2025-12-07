@@ -17,28 +17,32 @@ import {
   updateGroupChoreSchema,
   updateGroupSchema
 } from '../schemas/group.schema'
+import { paramSchema } from '../schemas/param.schema'
 
 const groupRouter = express.Router()
 
 groupRouter
   .route('/')
   .get(getGroupInfoController)
-  .put(validateRequest(updateGroupSchema), updateGroupInfoController)
+  .put(validateRequest({ bodySchema: updateGroupSchema }), updateGroupInfoController)
 
 groupRouter
   .route('/chores')
   .get(getGroupChoresController)
-  .post(validateRequest(addGroupChoreSchema), addGroupChoreController)
+  .post(validateRequest({ bodySchema: addGroupChoreSchema }), addGroupChoreController)
 
 groupRouter.route('/members').get(getGroupMembersController)
 
-groupRouter.route('/members/:userId').get(getGroupMemberController)
+groupRouter.route('/members/:id').get(validateRequest({ paramSchema }), getGroupMemberController)
 
 groupRouter
-  .route('/chores/:choreId')
-  .get(getGroupChoreController)
-  .put(validateRequest(updateGroupChoreSchema), updateGroupChoreController)
-  .delete(deleteGroupChoreController)
+  .route('/chore/:id')
+  .get(validateRequest({ paramSchema }), getGroupChoreController)
+  .put(
+    validateRequest({ paramSchema, bodySchema: updateGroupChoreSchema }),
+    updateGroupChoreController
+  )
+  .delete(validateRequest({ paramSchema }), deleteGroupChoreController)
 
 groupRouter.route('/leaderboard').get(getGroupLeaderboardController)
 
