@@ -16,27 +16,34 @@ const websocketProxy = (httpServer: Server) => {
   })
 
   wss.on('connection', (ws) => {
+    const passMessage = (message: string) => {
+      ws.send(JSON.stringify({ type: 'notification', message }))
+    }
     console.log('WebSocket client connected')
     ws.send(JSON.stringify({ type: 'notification', message: 'Welcome back!' }))
+    let groupId: string
+    let userId: string
     ws.on('message', (data) => {
       const message = JSON.parse(data.toString())
       if (message.type === 'subscribe') {
-        const groupId = message.groupId
-        const userId = message.userId
+        groupId = message.groupId
+        userId = message.userId
         if (userId) {
-          notificationEvents.on(`user:${userId}`, (message) => {
-            ws.send(JSON.stringify({ type: 'notification', message }))
-          })
+          notificationEvents.on(`user:${userId}`, passMessage)
         }
         if (groupId) {
-          notificationEvents.on(`group:${groupId}`, (message) => {
-            ws.send(JSON.stringify({ type: 'notification', message }))
-          })
+          notificationEvents.on(`group:${groupId}`, passMessage)
         }
       }
     })
 
     ws.on('close', () => {
+      if (userId) {
+        notificationEvents.off(`user:${userId}`, passMessage)
+      }
+      if (groupId) {
+        notificationEvents.off(`group:${groupId}`, passMessage)
+      }
       console.log('WebSocket client disconnected')
     })
   })
