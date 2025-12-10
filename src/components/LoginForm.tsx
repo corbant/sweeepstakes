@@ -97,11 +97,15 @@ function LoginForm(props: Props) {
         </Button>
       </form>
       {props.registerMode ? (
-        <Link component="button" onClick={() => navigate('/login')}>
+        <Link style={{ marginTop: '20px' }} component="button" onClick={() => navigate('/login')}>
           Already have an account? Log In
         </Link>
       ) : (
-        <Link component="button" onClick={() => navigate('/register')}>
+        <Link
+          style={{ marginTop: '20px' }}
+          component="button"
+          onClick={() => navigate('/register')}
+        >
           No Account? Create One
         </Link>
       )}

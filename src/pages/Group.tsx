@@ -1,4 +1,13 @@
-import { Paper, TableContainer, IconButton, Modal, Stack, Box, TextField } from '@mui/material'
+import {
+  Paper,
+  TableContainer,
+  IconButton,
+  Modal,
+  Stack,
+  Box,
+  TextField,
+  Button
+} from '@mui/material'
 import GroupChoreList from '../components/GroupChoreList'
 import Leaderboard from '../components/Leaderboard'
 import Statistic from '../components/Statistic'
@@ -31,6 +40,7 @@ function Group() {
   const [inviteModalOpen, setInviteModalOpen] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [newGroupName, setNewGroupName] = useState(groupName)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -87,6 +97,26 @@ function Group() {
                 target="_blank"
               >{`${window.location.origin}/register?groupId=${groupId}`}</a>
             </p>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Button variant="outlined" color="error" onClick={() => setInviteModalOpen(false)}>
+                Close
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  navigator.clipboard
+                    .writeText(`${window.location.origin}/register?groupId=${groupId}`)
+                    .then(() => {
+                      setLinkCopied(true)
+                      window.setTimeout(() => setLinkCopied(false), 3000)
+                    })
+                    .catch((err) => console.error('Failed to copy link: ', err))
+                }}
+                disabled={linkCopied}
+              >
+                {linkCopied ? 'Copied!' : 'Copy to Clipboard'}
+              </Button>
+            </Box>
           </Box>
         </Modal>
       </Stack>
