@@ -4,18 +4,25 @@ import {
   getUserChoresController,
   getUserInfoController,
   updateUserInfoController,
-  getUserPointsController,
-  getUserTotalCompletedChoresController
+  getUserTotalPointsController,
+  getUserTotalCompletedChoresController,
+  getUserWeeklyStatsController
 } from '../controllers/user.controller'
+import validateRequest from '../middleware/validateRequest'
+import { updateUserSchema } from '../schemas/user.schema'
 
 const userRouter = express.Router()
 
 // Get user info
-userRouter.route('/').get(getUserInfoController).put(updateUserInfoController)
+userRouter
+  .route('/')
+  .get(getUserInfoController)
+  .put(validateRequest({ bodySchema: updateUserSchema }), updateUserInfoController)
 
 userRouter.route('/chores').get(getUserChoresController)
-userRouter.route('/chores/completed').get(getUserTotalCompletedChoresController)
+userRouter.route('/stats/completed-chores').get(getUserTotalCompletedChoresController)
 userRouter.route('/badges').get(getUserBadgesController)
-userRouter.route('/points').get(getUserPointsController)
+userRouter.route('/stats/points').get(getUserTotalPointsController)
+userRouter.route('/stats/weekly').get(getUserWeeklyStatsController)
 
 export default userRouter

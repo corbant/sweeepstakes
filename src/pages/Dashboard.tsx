@@ -2,14 +2,22 @@ import { useUserStore } from '../stores/user'
 import Checklist from '../components/Checklist'
 import Statistic from '../components/Statistic'
 import { Paper } from '@mui/material'
+import dayjs from 'dayjs'
 
 export default function Dashboard() {
   const user = useUserStore((state) => state.user)
+
+  console.log('user', user)
+
+  const weeklyStats = user?.weeklyStats?.find(
+    (stat) => stat.weekStart === dayjs().startOf('week').toDate()
+  )
+
+  const weeklyPoints = weeklyStats?.points ?? 0
+  const weeklyChoresCompleted = weeklyStats?.choresCompleted ?? 0
   return (
     <>
-      <h1>
-        Dashboard of {user?.firstName} {user?.lastName}
-      </h1>
+      <h1>Dashboard</h1>
       <div>
         <h2>Due Today</h2>
         <Paper>
@@ -24,15 +32,11 @@ export default function Dashboard() {
       </div>
       <div>
         <h2>Weekly Chores Completed</h2>
-        <Statistic value="5" />
-      </div>
-      <div>
-        <h2>Current Leaderboard Position</h2>
-        <Statistic value="#3" />
+        <Statistic value={weeklyChoresCompleted} />
       </div>
       <div>
         <h2>Weekly Points Earned</h2>
-        <Statistic value="120" />
+        <Statistic value={weeklyPoints} />
       </div>
     </>
   )

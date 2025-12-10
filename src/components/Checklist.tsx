@@ -27,6 +27,10 @@ function Checklist(props: Props) {
     }
   }
 
+  if (props.items.length === 0) {
+    return <p>No items in checklist.</p>
+  }
+
   return (
     <List>
       {props.items.map((item, index) => (
@@ -40,7 +44,10 @@ function Checklist(props: Props) {
                 disableRipple
               />
             </ListItemIcon>
-            <ListItemText primary={item.text} />
+            <ListItemText
+              sx={{ textDecoration: checked.includes(index) ? 'line-through' : 'none' }}
+              primary={item.text}
+            />
           </ListItemButton>
         </ListItem>
       ))}

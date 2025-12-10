@@ -9,6 +9,7 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
+  Popover,
   Typography,
   useMediaQuery,
   type Breakpoint,
@@ -18,26 +19,40 @@ import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import { useState, type ReactNode } from 'react'
-import { Pages, usePageStore, type Page } from '../stores/page'
+import { useLocation, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo-color.svg'
+import ClearIcon from '@mui/icons-material/Clear'
 
 type Props = {
   theme?: Theme
   menuBreakpoint?: Breakpoint
-  navItems?: { label: string; page: Page; icon: ReactNode }[]
+  navItems?: { label: string; path: string; icon: ReactNode }[]
+  notifications: string[]
+  deleteNotification: (index: number) => void
 }
 
 function BrandedNavbar(props: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const page = usePageStore((state) => state.page)
-  const navigateTo = usePageStore((state) => state.navigateTo)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const open = Boolean(anchorEl)
 
   return (
     <AppBar position="fixed">
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <div
           style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-          onClick={() => navigateTo('')}
+          onClick={() => navigate('/')}
         >
           <img src={logo} alt="Sweeepstakes Logo" style={{ width: 30, marginRight: 10 }} />
           <Typography variant="h6" style={{ display: 'inline', verticalAlign: 'middle' }}>
@@ -54,13 +69,50 @@ function BrandedNavbar(props: Props) {
               <GitHubIcon />
             </IconButton>
           </a>
-          <IconButton>
-            <Badge variant="dot" color="secondary">
+          <IconButton onClick={handleClick}>
+            <Badge variant={props.notifications.length > 0 ? 'dot' : 'standard'} color="secondary">
               <NotificationsIcon />
             </Badge>
           </IconButton>
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+          >
+            {props.notifications.length > 0 ? (
+              <List style={{ width: 300 }}>
+                {props.notifications.map((notification, index) => (
+                  <ListItem
+                    key={index}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => props.deleteNotification(index)}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText primary={notification} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Typography sx={{ padding: 2 }}>No new notifications</Typography>
+            )}
+          </Popover>
           {useMediaQuery(props.theme?.breakpoints.up(props.menuBreakpoint || 'sm') || '') &&
-            page !== Pages.LOGIN && (
+            location.pathname !== '/login' &&
+            location.pathname !== '/register' && (
               <>
                 <IconButton onClick={() => setMenuOpen(!menuOpen)}>
                   <MenuIcon />
@@ -75,9 +127,9 @@ function BrandedNavbar(props: Props) {
                     {props.navItems?.map((item) => (
                       <ListItem disablePadding key={item.label}>
                         <ListItemButton
-                          selected={page === item.page}
+                          selected={location.pathname === item.path}
                           onClick={() => {
-                            navigateTo(item.page)
+                            navigate(item.path)
                             setMenuOpen(false)
                           }}
                         >

@@ -1,18 +1,18 @@
 import type { Request, Response } from 'express'
 import { type Register, type Login } from '../schemas/auth.schema'
-import { v4 as uuid } from 'uuid'
 import bcrypt from 'bcryptjs'
-import { generateRandomColor } from '../utils/generate-random-color'
+import { generateRandomColor } from './utils/generate-random-color'
 import GroupModel from '../models/group.model'
 import UserModel from '../models/user.model'
-import { userResponseSchema } from '../schemas/user.schema'
+import { notificationEvents } from '../events'
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'token'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
-  sameSite: 'strict' as const
+  sameSite: 'strict' as const,
+  maxAge: 365 * 24 * 60 * 60 * 1000
 }
 
 const SALT_LENGTH = process.env.SALT_LENGTH ? Number(process.env.SALT_LENGTH) : 10
@@ -37,10 +37,10 @@ export const loginController = async (req: Request, res: Response) => {
     firstName: userObj.firstName,
     lastName: userObj.lastName,
     group: userObj.group,
-    avatar: userObj.avatar
+    avatar: userObj.avatar,
+    weeklyStats: userObj.weeklyStats
   }
-  const resBody = userResponseSchema.parse(rawBody)
-  return res.status(200).cookie(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS).json(resBody)
+  return res.status(200).cookie(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS).json(rawBody)
 }
 
 export const logoutController = (req: Request, res: Response) => {
@@ -90,10 +90,14 @@ export const registerController = async (req: Request, res: Response) => {
       firstName: userObj.firstName,
       lastName: userObj.lastName,
       group: userObj.group,
-      avatar: userObj.avatar
+      avatar: userObj.avatar,
+      weeklyStats: userObj.weeklyStats
     }
-    const resBody = userResponseSchema.parse(rawBody)
-    return res.status(201).cookie(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS).json(resBody)
+    notificationEvents.emit(
+      `group:${group._id}`,
+      `${userObj.firstName} ${userObj.lastName} has joined your group. Give them a warm welcome!`
+    )
+    return res.status(201).cookie(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS).json(rawBody)
   } catch (e: any) {
     if (e.code === 11000) {
       await GroupModel.deleteOne({ _id: group._id })
@@ -101,4 +105,13 @@ export const registerController = async (req: Request, res: Response) => {
     }
     return res.status(500).json({ message: 'Error creating user', error: e })
   }
+}
+
+export const getGroupNameController = async (req: Request, res: Response) => {
+  const { id: groupId } = req.params
+  const group = await GroupModel.findById(groupId)
+  if (!group) {
+    return res.status(404).json({ message: 'Group not found' })
+  }
+  res.status(200).json({ name: group.name })
 }

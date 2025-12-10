@@ -15,8 +15,7 @@ export const getUserInfoController = async (req: Request, res: Response) => {
     lastName: userObj.lastName,
     avatar: userObj.avatar,
     group: userObj.group.toString(),
-    points: userObj.points,
-    totalChoresCompleted: userObj.totalChoresCompleted
+    weeklyStats: userObj.weeklyStats
   }
   res.status(200).json(rawBody)
 }
@@ -34,7 +33,8 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
 
   // Update avatar initials in update object
   updatedData.avatar = {
-    initials: newInitials
+    initials: newInitials,
+    color: updatedData.avatar?.color ?? currentUser!.avatar.color
   }
 
   const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedData, {
@@ -47,7 +47,7 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
     firstName: updatedUser!.firstName,
     lastName: updatedUser!.lastName,
     avatar: updatedUser!.avatar,
-    group: updatedUser!.group.toString()
+    group: updatedUser!.group
   }
   res.status(200).json(rawBody)
 }
@@ -76,10 +76,15 @@ export const getUserChoresController = async (req: Request, res: Response) => {
 
 export const getUserBadgesController = async (req: Request, res: Response) => {
   const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('points totalChoresCompleted')
+  const user = await UserModel.findById(userId).select('weeklyStats')
+  const totalChoresCompleted = user!.weeklyStats.reduce(
+    (acc, week) => acc + week.choresCompleted,
+    0
+  )
+  const points = user!.weeklyStats.reduce((acc, week) => acc + week.points, 0)
   const earnedBadges = Object.entries(BADGES)
     .filter(([_key, badge]) => {
-      return badge.condition(user!)
+      return badge.condition({ totalChoresCompleted, points })
     })
     .map(([_key, badge]) => ({
       name: badge.name,
@@ -96,18 +101,24 @@ export const getUserBadgesController = async (req: Request, res: Response) => {
   res.status(200).json(rawBody)
 }
 
-export const getUserPointsController = async (req: Request, res: Response) => {
+export const getUserTotalPointsController = async (req: Request, res: Response) => {
   const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('points')
-  const points = user!.points
+  const user = await UserModel.findById(userId).select('weeklyStats')
+  const points = user!.weeklyStats.reduce((acc, week) => acc + week.points, 0)
   res.status(200).json({ points })
 }
 
 export const getUserTotalCompletedChoresController = async (req: Request, res: Response) => {
   const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('totalChoresCompleted')
-  const totalChoresCompleted = user!.totalChoresCompleted
-  res.status(200).json({ totalChoresCompleted })
+  const user = await UserModel.findById(userId).select('weeklyStats')
+  const choresCompleted = user!.weeklyStats.reduce((acc, week) => acc + week.choresCompleted, 0)
+  res.status(200).json({ choresCompleted })
+}
+
+export const getUserWeeklyStatsController = async (req: Request, res: Response) => {
+  const userId = getUserId(req)
+  const user = await UserModel.findById(userId).select('weeklyStats')
+  res.status(200).json({ weeklyStats: user!.weeklyStats })
 }
 
 // utils

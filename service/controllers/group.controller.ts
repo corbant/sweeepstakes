@@ -3,6 +3,8 @@ import UserModel, { type User } from '../models/user.model'
 import GroupModel from '../models/group.model'
 import ChoreModel, { type Chore } from '../models/chore.model'
 import { POINTS_PER_CHORE } from '../constants'
+import dayjs from 'dayjs'
+import { notificationEvents } from '../events'
 
 export const getGroupInfoController = async (req: Request, res: Response) => {
   const groupId = await getGroupId(req)
@@ -13,6 +15,7 @@ export const getGroupInfoController = async (req: Request, res: Response) => {
   const rawBody = {
     id: groupObj._id,
     name: groupObj.name,
+    completedChores: groupObj.completedChores,
     members: groupObj.members.map((member) => ({
       id: member._id,
       firstName: member.firstName,
@@ -42,9 +45,26 @@ export const updateGroupInfoController = async (req: Request, res: Response) => 
   const rawBody = {
     id: updatedGroupObj._id,
     name: updatedGroupObj.name,
-    members: updatedGroupObj.members,
-    chores: updatedGroupObj.chores
+    completedChores: updatedGroupObj.completedChores,
+    members: updatedGroupObj.members.map((member) => ({
+      id: member._id,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      avatar: member.avatar
+    })),
+    chores: updatedGroupObj.chores.map((chore) => ({
+      id: chore._id,
+      title: chore.title,
+      description: chore.description,
+      assignedTo: chore.assignedTo,
+      dueDate: chore.dueDate,
+      completed: chore.completed
+    }))
   }
+  notificationEvents.emit(
+    `group:${updatedGroupObj._id}`,
+    `Group name was changed to ${updatedGroupObj.name}`
+  )
   res.status(200).json(rawBody)
 }
 
@@ -126,10 +146,18 @@ export const addGroupChoreController = async (req: Request, res: Response) => {
     id: newChoreObj._id,
     title: newChoreObj.title,
     description: newChoreObj.description,
-    assignedTo: newChoreObj.assignedTo,
+    assignedTo: newChoreObj.assignedTo.map((id) => id.toString()),
     dueDate: newChoreObj.dueDate,
     completed: newChoreObj.completed
   }
+  UserModel.find({ _id: { $in: choreData.assignedTo } }).then((users) => {
+    for (const user of users) {
+      notificationEvents.emit(
+        `user:${user._id}`,
+        `New chore assigned: ${newChoreObj.title} due on ${dayjs(newChoreObj.dueDate).format('MM/DD')}`
+      )
+    }
+  })
   res.status(201).json(rawBody)
 }
 
@@ -171,29 +199,79 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
     runValidators: true
   })
 
+  if (updatedChore!.assignedTo.length !== currentChore!.assignedTo.length) {
+    // Notify new assigned users
+    const newAssignedUsers = updatedChore!.assignedTo.filter(
+      (id) => !currentChore!.assignedTo.includes(id)
+    )
+    const newAssignedUserDocs = await UserModel.find({ _id: { $in: newAssignedUsers } })
+    for (const user of newAssignedUserDocs) {
+      notificationEvents.emit(
+        `user:${user._id}`,
+        `You have been assigned a new chore: ${updatedChore!.title} due on ${dayjs(updatedChore!.dueDate).format('MM/DD')}`
+      )
+    }
+    // Notify unassigned users
+    const unassignedUsers = currentChore!.assignedTo.filter(
+      (id) => !updatedChore!.assignedTo.includes(id)
+    )
+    const unassignedUserDocs = await UserModel.find({ _id: { $in: unassignedUsers } })
+    for (const user of unassignedUserDocs) {
+      notificationEvents.emit(
+        `user:${user._id}`,
+        `You have been unassigned from a chore: ${updatedChore!.title}`
+      )
+    }
+  }
+
   // Check if chore was just marked as completed
   if (!currentChore!.completed && updatedChore!.completed) {
     // Award points to all assigned users
-    await UserModel.updateMany(
-      { _id: { $in: updatedChore!.assignedTo } },
-      {
-        $inc: {
-          points: POINTS_PER_CHORE,
-          totalChoresCompleted: 1
-        }
+    const users = await UserModel.find({ _id: { $in: updatedChore!.assignedTo } })
+
+    const currentWeekStart = dayjs().startOf('week').toDate()
+
+    for (const user of users) {
+      const currentWeekStats = user.weeklyStats.find(
+        (stat) => stat.weekStart.getTime() === currentWeekStart.getTime()
+      )
+
+      if (currentWeekStats) {
+        currentWeekStats.choresCompleted += 1
+        currentWeekStats.points += POINTS_PER_CHORE
+      } else {
+        user.weeklyStats.push({
+          weekStart: currentWeekStart,
+          choresCompleted: 1,
+          points: POINTS_PER_CHORE
+        })
       }
-    )
+
+      await user.save()
+      notificationEvents.emit(`user:${user._id}`, `Chore completed: ${updatedChore!.title}`)
+    }
   } else if (currentChore!.completed && !updatedChore!.completed) {
     // If chore was unmarked as completed, deduct points
-    await UserModel.updateMany(
-      { _id: { $in: updatedChore!.assignedTo } },
-      {
-        $inc: {
-          points: -POINTS_PER_CHORE,
-          totalChoresCompleted: -1
-        }
+    const users = await UserModel.find({ _id: { $in: updatedChore!.assignedTo } })
+
+    const currentWeekStart = dayjs().startOf('week').toDate()
+
+    for (const user of users) {
+      const currentWeekStats = user.weeklyStats.find(
+        (stat) => stat.weekStart.getTime() === currentWeekStart.getTime()
+      )
+
+      if (currentWeekStats) {
+        currentWeekStats.choresCompleted -= 1
+        currentWeekStats.points -= POINTS_PER_CHORE
       }
-    )
+
+      await user.save()
+      notificationEvents.emit(
+        `user:${user._id}`,
+        `Chore unmarked as completed: ${updatedChore!.title}`
+      )
+    }
   }
 
   const updatedChoreObj = updatedChore!.toObject()
@@ -231,17 +309,25 @@ export const getGroupLeaderboardController = async (req: Request, res: Response)
   const group = await GroupModel.findById(groupId).populate<{ members: User[] }>('members')
   const members = group!.members
 
-  const leaderboard = members.map((member) => ({
-    id: member._id,
-    points: member.points
-  }))
+  const currentWeekStart = dayjs().startOf('week').toDate()
+
+  const leaderboard = members.map((member) => {
+    // Get current week's stats only
+    const currentWeekStats = member.weeklyStats.find(
+      (stat) => stat.weekStart.getTime() === currentWeekStart.getTime()
+    )
+    return {
+      id: member._id,
+      points: currentWeekStats ? currentWeekStats.points : 0
+    }
+  })
 
   leaderboard.sort((a, b) => b.points - a.points)
   res.status(200).json(leaderboard)
 }
 
 // utils
-const getGroupId = async (req: Request): Promise<string> => {
+const getGroupId: (req: Request) => Promise<string> = async (req: Request): Promise<string> => {
   // Placeholder implementation
   const userId = req.cookies[process.env.AUTH_COOKIE_NAME || 'token']
 

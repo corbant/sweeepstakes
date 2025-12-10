@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import dayjs from 'dayjs'
 
 export interface User {
   _id: mongoose.Types.ObjectId
@@ -11,8 +12,13 @@ export interface User {
     initials: string
     color: string
   }
-  points: number
-  totalChoresCompleted: number
+  weeklyStats: [
+    {
+      weekStart: Date
+      choresCompleted: number
+      points: number
+    }
+  ]
 }
 
 const userSchema = new mongoose.Schema({
@@ -29,8 +35,24 @@ const userSchema = new mongoose.Schema({
     required: true,
     _id: false
   },
-  points: { type: Number, default: 0 },
-  totalChoresCompleted: { type: Number, default: 0 }
+  weeklyStats: {
+    type: [
+      {
+        weekStart: { type: Date, required: true },
+        choresCompleted: { type: Number, required: true },
+        points: { type: Number, required: true }
+      }
+    ],
+    required: true,
+    default: [
+      {
+        weekStart: dayjs().startOf('week').toDate(),
+        choresCompleted: 0,
+        points: 0
+      }
+    ],
+    _id: false
+  }
 })
 
 const UserModel = mongoose.model('User', userSchema)

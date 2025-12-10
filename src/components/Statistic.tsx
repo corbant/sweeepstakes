@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material'
 
 type Props = {
-  value: string
+  value: number | string
 }
 
 function Statistic(props: Props) {

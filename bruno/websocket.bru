@@ -1,0 +1,18 @@
+meta {
+  name: websocket
+  type: ws
+  seq: 2
+}
+
+ws {
+  url: {{ws_url}}
+  body: ws
+  auth: basic
+}
+
+body:ws {
+  name: message 1
+  content: '''
+    Test
+  '''
+}

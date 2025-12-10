@@ -2,10 +2,18 @@ export interface User {
   id: string
   firstName: string
   lastName: string
+  group: string
   avatar: {
     initials: string
     color: string
   }
+  weeklyStats: [
+    {
+      weekStart: Date
+      choresCompleted: number
+      points: number
+    }
+  ]
 }
 
 export interface Chore {
@@ -22,6 +30,7 @@ export interface Group {
   name: string
   members: User[]
   chores: Chore[]
+  completedChores: number
 }
 
 export interface Badge {
@@ -30,6 +39,6 @@ export interface Badge {
 }
 
 export interface LeaderboardEntry {
-  user: string
+  id: string
   points: number
 }

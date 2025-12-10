@@ -1,11 +1,12 @@
 import express from 'express'
+import http from 'http'
 import cookieParser from 'cookie-parser'
-import bcrypt from 'bcryptjs'
-import 'dotenv/config'
-import apiRouter from './routes'
+import { apiRouter, websocketProxy } from './routes'
 import mongoose from 'mongoose'
+import 'dotenv/config'
 
 const app = express()
+const server = http.createServer(app)
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000
 
@@ -38,6 +39,8 @@ mongoose
   })
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
+
+websocketProxy(server)
