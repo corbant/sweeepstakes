@@ -6,6 +6,8 @@ import { POINTS_PER_CHORE } from '../constants'
 import dayjs from 'dayjs'
 import { notificationEvents } from '../events'
 
+const choresToBeDeleted: { id: string; timeout: NodeJS.Timeout }[] = []
+
 export const getGroupInfoController = async (req: Request, res: Response) => {
   const groupId = await getGroupId(req)
   const group = await GroupModel.findById(groupId).populate<{ chores: Chore[]; members: User[] }>(
@@ -226,14 +228,16 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
 
   // Check if chore was just marked as completed
   if (!currentChore!.completed && updatedChore!.completed) {
+    group!.completedChores += 1
+    await group!.save()
     // Award points to all assigned users
     const users = await UserModel.find({ _id: { $in: updatedChore!.assignedTo } })
 
     const currentWeekStart = dayjs().startOf('week').toDate()
 
     for (const user of users) {
-      const currentWeekStats = user.weeklyStats.find(
-        (stat) => stat.weekStart.getTime() === currentWeekStart.getTime()
+      const currentWeekStats = user.weeklyStats.find((stat) =>
+        dayjs(stat.weekStart).isSame(currentWeekStart, 'week')
       )
 
       if (currentWeekStats) {
@@ -250,7 +254,23 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
       await user.save()
       notificationEvents.emit(`user:${user._id}`, `Chore completed: ${updatedChore!.title}`)
     }
+    choresToBeDeleted.push({
+      id: choreId,
+      timeout: setTimeout(
+        async () => {
+          await ChoreModel.findByIdAndDelete(choreId)
+          await GroupModel.findByIdAndUpdate(groupId, { $pull: { chores: choreId } })
+          choresToBeDeleted.splice(
+            choresToBeDeleted.findIndex((chore) => chore.id === choreId),
+            1
+          )
+        },
+        1000 * 60 * 60 // 1 hour
+      )
+    })
   } else if (currentChore!.completed && !updatedChore!.completed) {
+    group!.completedChores -= 1
+    await group!.save()
     // If chore was unmarked as completed, deduct points
     const users = await UserModel.find({ _id: { $in: updatedChore!.assignedTo } })
 
@@ -272,6 +292,12 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
         `Chore unmarked as completed: ${updatedChore!.title}`
       )
     }
+
+    clearTimeout(choresToBeDeleted.find((chore) => chore.id === choreId)?.timeout)
+    choresToBeDeleted.splice(
+      choresToBeDeleted.findIndex((chore) => chore.id === choreId),
+      1
+    )
   }
 
   const updatedChoreObj = updatedChore!.toObject()

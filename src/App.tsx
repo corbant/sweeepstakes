@@ -48,7 +48,7 @@ function AppContent() {
   useEffect(() => {
     if (user) {
       useGroupStore.getState().getGroupInfo()
-      const socket = new WebSocket('ws://localhost:4000/ws')
+      const socket = new WebSocket(`/ws`)
       socket.onopen = () => {
         socket.send(JSON.stringify({ type: 'subscribe', groupId: user.group, userId: user.id }))
       }

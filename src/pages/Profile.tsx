@@ -92,8 +92,8 @@ function Profile() {
         )}
       </Stack>
       <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
-        {badges.map((badge) => (
-          <img src={badge.url} alt={badge.name} />
+        {badges.map((badge, index) => (
+          <img key={index} src={badge.url} alt={badge.name} />
         ))}
       </div>
       <div>

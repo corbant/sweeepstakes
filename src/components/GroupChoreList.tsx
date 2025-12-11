@@ -98,8 +98,21 @@ function GroupChoreList(props: Props) {
               (userId) => useGroupStore.getState().members.find((user) => user.id === userId)!
             )
             return (
-              <TableRow key={index}>
-                <TableCell>{chore.title}</TableCell>
+              <TableRow
+                key={index}
+                sx={{
+                  opacity: chore.completed ? 0.5 : 1,
+                  backgroundColor: chore.completed ? 'action.hover' : 'transparent'
+                }}
+              >
+                <TableCell>
+                  {chore.title}
+                  {chore.completed && (
+                    <div style={{ fontSize: '0.75rem', color: 'gray', marginTop: '4px' }}>
+                      This chore was completed and will be deleted within an hour
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell align="center">
                   <AvatarGroup spacing={54} sx={{ justifyContent: 'center' }} max={4}>
                     {assignedUsers.map((user) => (
@@ -112,7 +125,9 @@ function GroupChoreList(props: Props) {
                 <TableCell align="center">{new Date(chore.dueDate).toDateString()}</TableCell>
                 <TableCell align="right">
                   <IconButton
+                    disabled={chore.completed}
                     onClick={() => {
+                      if (chore.completed) return
                       setSelectedChore(chore)
                       setOpenChoreModal(true)
                     }}

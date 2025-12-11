@@ -1,52 +1,35 @@
 import { Checkbox, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { useState } from 'react'
+import type { Chore } from '../types'
+import dayjs from 'dayjs'
 
 type Props = {
-  items: { text: string; checked: boolean }[]
-  onCheck?: (item: { text: string; checked: boolean }) => void
+  chores: Chore[]
+  onToggle?: (chore: Chore, completed: boolean) => void
 }
 
 function Checklist(props: Props) {
-  const [checked, setChecked] = useState([
-    ...props.items.map((item, index) => (item.checked ? index : -1)).filter((index) => index !== -1)
-  ])
-
-  const handleToggle = (index: number) => () => {
-    const currentIndex = checked.indexOf(index)
-    const newChecked = [...checked]
-
-    if (currentIndex === -1) {
-      newChecked.push(index)
-    } else {
-      newChecked.splice(currentIndex, 1)
-    }
-
-    setChecked(newChecked)
-    if (props.onCheck) {
-      props.onCheck({ text: props.items[index].text, checked: newChecked.includes(index) })
+  const handleToggle = (chore: Chore) => async () => {
+    if (props.onToggle) {
+      await props.onToggle(chore, !chore.completed)
     }
   }
 
-  if (props.items.length === 0) {
-    return <p>No items in checklist.</p>
+  if (props.chores.length === 0) {
+    return <p style={{ padding: 12 }}>No chores in checklist.</p>
   }
 
   return (
     <List>
-      {props.items.map((item, index) => (
-        <ListItem key={index}>
-          <ListItemButton dense onClick={handleToggle(index)}>
+      {props.chores.map((chore) => (
+        <ListItem key={chore.id} secondaryAction={<p>{dayjs(chore.dueDate).format('MM/DD')}</p>}>
+          <ListItemButton dense onClick={handleToggle(chore)}>
             <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={checked.includes(index)}
-                tabIndex={-1}
-                disableRipple
-              />
+              <Checkbox edge="start" checked={chore.completed} tabIndex={-1} disableRipple />
             </ListItemIcon>
             <ListItemText
-              sx={{ textDecoration: checked.includes(index) ? 'line-through' : 'none' }}
-              primary={item.text}
+              sx={{ textDecoration: chore.completed ? 'line-through' : 'none' }}
+              primary={chore.title}
+              secondary={chore.description}
             />
           </ListItemButton>
         </ListItem>
