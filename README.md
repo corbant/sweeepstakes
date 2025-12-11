@@ -9,10 +9,14 @@ Sweeepstakes is a real-time chore coordination app that helps roommates and fami
 - [Key Features](#key-features)
 - [Technologies](#technologies)
 - [Deployment Instructions](#deployment-instructions)
-- [HTML Deliverable](#html-deliverable)
-- [CSS Deliverable](#css-deliverable)
-- [React Deliverable Phase 1](#react-deliverable-phase-1)
-- [React Deliverable Phase 2](#react-deliverable-phase-2)
+- **Deliverables**
+  - [HTML Deliverable](#html-deliverable)
+  - [CSS Deliverable](#css-deliverable)
+  - [React Deliverable Phase 1](#react-deliverable-phase-1)
+  - [React Deliverable Phase 2](#react-deliverable-phase-2)
+  - [Service Deliverable](#service-deliverable)
+  - [DB Deliverable](#db-deliverable)
+  - [Websocket Deliverable](#websocket-deliverable)
 
 ## Elevator Pitch
 
@@ -114,29 +118,50 @@ Users can join a household group, assign chores, track completion, and earn badg
 
 ## React Deliverable Phase 2
 
-- [x]
+- [x] **UseState**
+  - Keeping track of form information
+  - Live updates for checklist component
+  - Controlling whether a modal should be open or not
+- [x] **UseEffect**
+  - Fetching information from api when certain events happen (such as fetching group info when user logs in)
+  - Initializing form information
 
 ## Service Deliverable
 
 **Endpoints:**
 
 - Authentication
-  - POST /login - User login
-  - POST /register - User registration
+  - POST /auth/login - User login
+  - POST /auth/register - User registration
+  - DELETE /auth/logout - User logout
+  - GET /auth/group/:id/name - Get group name from ID
 - User
   - GET /user - Get user info
   - PUT /user - Update user info
-  - GET /user/group - Get user's group info
   - GET /user/chores - Get chores assigned to the user
   - GET /user/badges - Get user's badges
+  - GET /user/stats/points - Get user's weekly points
+  - GET /user/stats/weekly - Get user's weekly stats
+  - GET /user/stats/completed-chores - Get user's weekly completed chore count
 - Group
   - GET /group - Get group info for current user
-  - POST /group - Create new group
   - PUT /group - Update group info
   - GET /group/members - Get all group members
-  - GET /group/members/:userId - Get member info
+  - GET /group/members/:id - Get member info
   - GET /group/chores - Get all group chores
   - POST /group/chores - Create new chore
-  - PUT /group/chores/:choreId - Update chore
-  - DELETE /group/chores/:choreId - Delete chore
+  - PUT /group/chores/:id - Update chore
+  - DELETE /group/chores/:id - Delete chore
   - GET /group/leaderboard - Get group leaderboard
+
+## DB Deliverable
+
+- [x] Store application data in MongoDB:
+  - UserModel
+  - ChoreModel
+  - GroupModel
+
+## Websocket Deliverable
+
+- [x] Added real-time notification feature for live updates in the app
+  - Endpoint: /ws
