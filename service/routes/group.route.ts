@@ -36,7 +36,7 @@ groupRouter.route('/members').get(getGroupMembersController)
 groupRouter.route('/members/:id').get(validateRequest({ paramSchema }), getGroupMemberController)
 
 groupRouter
-  .route('/chore/:id')
+  .route('/chores/:id')
   .get(validateRequest({ paramSchema }), getGroupChoreController)
   .put(
     validateRequest({ paramSchema, bodySchema: updateGroupChoreSchema }),
