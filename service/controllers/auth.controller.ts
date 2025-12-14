@@ -5,14 +5,14 @@ import { generateRandomColor } from './utils/generate-random-color'
 import GroupModel from '../models/group.model'
 import UserModel from '../models/user.model'
 import { notificationEvents } from '../events'
-
-const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'token'
+import { SignJWT } from 'jose'
+import { AUTH_COOKIE_NAME, JWT_SECRET } from '../constants'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
   sameSite: 'strict' as const,
-  maxAge: 365 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000
 }
 
 const SALT_LENGTH = process.env.SALT_LENGTH ? Number(process.env.SALT_LENGTH) : 10
@@ -29,7 +29,8 @@ export const loginController = async (req: Request, res: Response) => {
     return res.status(401).json({ message: 'Invalid username or password' })
   }
 
-  const token = user._id
+  const token = await generateAuthToken(user._id.toString())
+
   const userObj = user.toObject()
 
   const rawBody = {
@@ -82,7 +83,7 @@ export const registerController = async (req: Request, res: Response) => {
     group.members.push(user._id)
     await group.save()
 
-    const token = user._id
+    const token = await generateAuthToken(user._id.toString())
     const userObj = user.toObject()
 
     const rawBody = {
@@ -114,4 +115,12 @@ export const getGroupNameController = async (req: Request, res: Response) => {
     return res.status(404).json({ message: 'Group not found' })
   }
   res.status(200).json({ name: group.name })
+}
+
+const generateAuthToken = async (userId: string) => {
+  return await new SignJWT({ id: userId })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(new TextEncoder().encode(JWT_SECRET))
 }

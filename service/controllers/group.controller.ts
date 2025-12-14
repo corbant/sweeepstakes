@@ -9,7 +9,7 @@ import { notificationEvents } from '../events'
 const choresToBeDeleted: { id: string; timeout: NodeJS.Timeout }[] = []
 
 export const getGroupInfoController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId).populate<{ chores: Chore[]; members: User[] }>(
     'chores members'
   )
@@ -37,7 +37,7 @@ export const getGroupInfoController = async (req: Request, res: Response) => {
 }
 
 export const updateGroupInfoController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const updatedData = req.body
   const updatedGroup = await GroupModel.findByIdAndUpdate(groupId, updatedData, {
     new: true,
@@ -71,7 +71,7 @@ export const updateGroupInfoController = async (req: Request, res: Response) => 
 }
 
 export const getGroupMembersController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId)
   if (!group) {
     return res.status(404).json({ message: 'Group not found' })
@@ -92,7 +92,7 @@ export const getGroupMembersController = async (req: Request, res: Response) => 
 
 export const getGroupMemberController = async (req: Request, res: Response) => {
   const { id: userId } = req.params
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId)
   if (!group!.members.find((memberId) => memberId.toString() === userId)) {
     return res.status(404).json({ message: 'Member not found in group' })
@@ -110,7 +110,7 @@ export const getGroupMemberController = async (req: Request, res: Response) => {
 }
 
 export const getGroupChoresController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId).populate<{ chores: Chore[] }>('chores')
   const chores = group!.chores
   const rawBody = chores.map((chore) => ({
@@ -126,7 +126,7 @@ export const getGroupChoresController = async (req: Request, res: Response) => {
 }
 
 export const addGroupChoreController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const choreData = req.body
   let newChore
   try {
@@ -165,7 +165,7 @@ export const addGroupChoreController = async (req: Request, res: Response) => {
 
 export const getGroupChoreController = async (req: Request, res: Response) => {
   const { id: choreId } = req.params
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId)
   if (!group!.chores.find((id) => id.toString() === choreId)) {
     return res.status(404).json({ message: 'Chore not found in group' })
@@ -185,7 +185,7 @@ export const getGroupChoreController = async (req: Request, res: Response) => {
 
 export const updateGroupChoreController = async (req: Request, res: Response) => {
   const { id: choreId } = req.params
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const updatedData = req.body
 
   const group = await GroupModel.findById(groupId)
@@ -314,7 +314,7 @@ export const updateGroupChoreController = async (req: Request, res: Response) =>
 
 export const deleteGroupChoreController = async (req: Request, res: Response) => {
   const { id: choreId } = req.params
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
   const group = await GroupModel.findById(groupId)
   if (!group!.chores.find((id) => id.toString() === choreId)) {
     return res.status(404).json({ message: 'Chore not found in group' })
@@ -330,7 +330,7 @@ export const deleteGroupChoreController = async (req: Request, res: Response) =>
 }
 
 export const getGroupLeaderboardController = async (req: Request, res: Response) => {
-  const groupId = await getGroupId(req)
+  const groupId = res.locals.user.group.toString()
 
   const group = await GroupModel.findById(groupId).populate<{ members: User[] }>('members')
   const members = group!.members
@@ -350,14 +350,4 @@ export const getGroupLeaderboardController = async (req: Request, res: Response)
 
   leaderboard.sort((a, b) => b.points - a.points)
   res.status(200).json(leaderboard)
-}
-
-// utils
-const getGroupId: (req: Request) => Promise<string> = async (req: Request): Promise<string> => {
-  // Placeholder implementation
-  const userId = req.cookies[process.env.AUTH_COOKIE_NAME || 'token']
-
-  const user = await UserModel.findById(userId)
-
-  return user!.group.toString()
 }

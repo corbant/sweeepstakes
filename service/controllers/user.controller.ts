@@ -5,9 +5,7 @@ import { type Chore } from '../models/chore.model'
 import { BADGES } from '../constants'
 
 export const getUserInfoController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-
-  const user = await UserModel.findById(userId)
+  const user = res.locals.user
   const userObj = user!.toObject()
   const rawBody = {
     id: userObj._id,
@@ -21,10 +19,9 @@ export const getUserInfoController = async (req: Request, res: Response) => {
 }
 
 export const updateUserInfoController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
   const updatedData = req.body
 
-  const currentUser = await UserModel.findById(userId)
+  const currentUser = res.locals.user
 
   // Determine new initials
   const firstName = updatedData.firstName ?? currentUser!.firstName
@@ -37,7 +34,7 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
     color: updatedData.avatar?.color ?? currentUser!.avatar.color
   }
 
-  const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedData, {
+  const updatedUser = await UserModel.findByIdAndUpdate(currentUser!._id, updatedData, {
     new: true,
     runValidators: true
   })
@@ -53,14 +50,15 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
 }
 
 export const getUserChoresController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-  const user = await UserModel.findById(userId)
+  const user = res.locals.user
   const groupId = user!.group
   const group = await GroupModel.findById(groupId).populate<{ chores: Chore[] }>('chores')
   const groupObj = group!.toObject()
 
   const chores = groupObj.chores
-    .filter((chore) => chore.assignedTo.some((assignee) => assignee.toString() === userId))
+    .filter((chore) =>
+      chore.assignedTo.some((assignee) => assignee.toString() === user._id.toString())
+    )
     .map((chore) => ({
       id: chore._id,
       title: chore.title,
@@ -75,13 +73,15 @@ export const getUserChoresController = async (req: Request, res: Response) => {
 }
 
 export const getUserBadgesController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('weeklyStats')
+  const user = res.locals.user
   const totalChoresCompleted = user!.weeklyStats.reduce(
-    (acc, week) => acc + week.choresCompleted,
+    (acc: number, week: { choresCompleted: number }) => acc + week.choresCompleted,
     0
   )
-  const points = user!.weeklyStats.reduce((acc, week) => acc + week.points, 0)
+  const points = user!.weeklyStats.reduce(
+    (acc: number, week: { points: number }) => acc + week.points,
+    0
+  )
   const earnedBadges = Object.entries(BADGES)
     .filter(([_key, badge]) => {
       return badge.condition({ totalChoresCompleted, points })
@@ -102,28 +102,24 @@ export const getUserBadgesController = async (req: Request, res: Response) => {
 }
 
 export const getUserTotalPointsController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('weeklyStats')
-  const points = user!.weeklyStats.reduce((acc, week) => acc + week.points, 0)
+  const user = res.locals.user
+  const points = user!.weeklyStats.reduce(
+    (acc: number, week: { points: number }) => acc + week.points,
+    0
+  )
   res.status(200).json({ points })
 }
 
 export const getUserTotalCompletedChoresController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('weeklyStats')
-  const choresCompleted = user!.weeklyStats.reduce((acc, week) => acc + week.choresCompleted, 0)
+  const user = res.locals.user
+  const choresCompleted = user!.weeklyStats.reduce(
+    (acc: number, week: { choresCompleted: number }) => acc + week.choresCompleted,
+    0
+  )
   res.status(200).json({ choresCompleted })
 }
 
 export const getUserWeeklyStatsController = async (req: Request, res: Response) => {
-  const userId = getUserId(req)
-  const user = await UserModel.findById(userId).select('weeklyStats')
+  const user = res.locals.user
   res.status(200).json({ weeklyStats: user!.weeklyStats })
-}
-
-// utils
-const getUserId = (req: Request): string => {
-  // Placeholder implementation
-  const userId = req.cookies[process.env.AUTH_COOKIE_NAME || 'token']
-  return userId
 }

@@ -1,5 +1,8 @@
 import { type User } from './models/user.model'
 
+export const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'token'
+export const JWT_SECRET = process.env.JWT_SECRET || 'secret'
+
 export const POINTS_PER_CHORE = 10
 
 interface Badge {
