@@ -69,11 +69,16 @@ function BrandedNavbar(props: Props) {
               <GitHubIcon />
             </IconButton>
           </a>
-          <IconButton onClick={handleClick}>
-            <Badge variant={props.notifications.length > 0 ? 'dot' : 'standard'} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          {location.pathname !== '/login' && location.pathname !== '/register' && (
+            <IconButton onClick={handleClick}>
+              <Badge
+                variant={props.notifications.length > 0 ? 'dot' : 'standard'}
+                color="secondary"
+              >
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          )}
           <Popover
             open={open}
             anchorEl={anchorEl}
